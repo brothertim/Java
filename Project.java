@@ -9,138 +9,180 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.Files;
 import java.io.IOException;
+import java.util.Scanner;
+import java.util.Arrays;
+import java.util.Collections;
 import java.io.*;
 import java.nio.*;
 import java.util.*;
 
 public class Project
 {
+	
 	public static void main(String[] args)
 	{
 		
-		String inputString = "";
-		String uniqueList = "";
-		String ascendingWordList = "";
-		uniqueList = new String();
-		ascendingWordList = new String();
+		//method calls for total word count
+		String totalArray[] = new String[5000];
+		totalArray = totalWord(totalArray);
 		int wordCount; 
+		wordCount = counter(totalArray);
+		
+		//method calls for unique word count
+		String uniqueArray[] = new String[wordCount];
+		uniqueArray = filterDuplicates(wordCount);
 		int uniqueCount;
-		
-		try  //try&catch block to validate input file and catch exceptions, exit program if exceptions occur
-		{
-			inputString = new String(Files.readAllBytes(Paths.get(args[0])));
-			//System.out.print(s1);
-		}
-		catch (IOException ioException)
-		{
-			System.out.println("IOException, please try again");
-			System.exit(1);
-		}
-		
-		
-		
-		//method calls
-		wordCount = wordCounter(inputString);
-		uniqueCount = uniqueWordCounter(inputString);
-		ascendingWordList = ascendingList(inputString);
+		uniqueCount = counter(uniqueArray);
 		
 		
 		
 		//print 
 		System.out.printf("%nThe total number of words in the file is: " +wordCount);
 		System.out.printf("%nThe total number of different words in the file is: "+uniqueCount);
-		System.out.printf("%nWords of the input file in ascending order without duplication%n"+ascendingWordList);
+		System.out.printf("%nWords of the input file in ascending order without duplication%n" + printUniques(uniqueArray));
 		System.out.println();
+
 		
-/* to do
-		//search prompt
-		System.out.print("Please enter a search pattern: ");
-		Scanner searchpattern = new Scanner(System.in)
-		String terminationValue = 
-		while (searchpattern != terminationValue ) 
-*/
-		
-	
-	}
+		String terminateString = ("EINPUT");
+		String searchString = new String();
+		//processing input
+		do
+		{
+			Scanner input = new Scanner(System.in);
+			System.out.println();
+			System.out.print("Please enter a search pattern: ");
+			searchString = input.next();
+			if (searchString.equals(terminateString))
+			{
+				System.out.println("Bye!");
+				System.exit(0);
+			}
+			
+			//TODO//
+			
+			//call to method to sort input file by line, store line-sorted array
+			//send line-sorted array to method to search for word(s), return index+1
+			//print line#
+			int lineNum = 1;
+			System.out.printf("Line number " + lineNum);
+			//send line-sorted array to method to iterate through array, store results in new array, return array to print
+			//print array
+			System.out.printf("%n" + uniqueArray[lineNum]);
+			//get indexof for word, print with x spaces and ^
+			
+			
+			
+		} while (!searchString.equals(terminateString));
+	} //end main
 
 	
-	//method to convert string to a list, then count the number of elements, and convert that number to a string and return it
-	public static int wordCounter(String inputString)
+	//reusable method to count array elements with data
+	public static int counter(String[] array)
 	{
-		List<String> wordList = new ArrayList<String>(Arrays.asList(inputString.split("[^a-zA-Z0-9']+"))); //create a list, then split inputString at delimiter (non-alphanumeric) using regular expression
-		int counter = wordList.size(); //set counter to be the total list size
-		return counter; //return the count
+		int counter = 0; 
+		for (int j = 0; j < array.length; j++) //loop to count number of arrays that contain data
+			if (array[j] != null)
+				counter++;
+		return counter;
+		
 	}
 	
 	
-	//method to convert string to HashSet with no duplicates, return cound of elements
-	public static int uniqueWordCounter(String inputString)
-	{
-		List<String> wordList = new ArrayList<String>(Arrays.asList(inputString.split("[^a-zA-Z0-9']+"))); 
-		List<String> uniqueList = new ArrayList<String>(new HashSet<String>(wordList)); //section 16.10, wrap wordlist into a hashset to filter duplicates, and wrap set in a list again to make printing easier
-		int listSize = uniqueList.size();
-		//List<String> ascendingWordList = new ArrayList<String>(uniqueList);
-		//String[] uniqueStringList = new String[uniqueList.size];
-		//uniqueStringList = uniqueList.toArray(uniqueStringList);
-		return listSize;	//return the list
-	}
-		
 	
-	public static String ascendingList(String inputString)
+	// read text file, delimit, place values into array
+	public static String[] totalWord(String[] array)
 	{
-		List<String> wordList = new ArrayList<String>(Arrays.asList(inputString.split("[^a-zA-Z0-9']+"))); 
-		List<String> uniqueList = new ArrayList<String>(new HashSet<String>(wordList));
-		Collections.sort(uniqueList);
-		String ascendingWordList = String.join(" ", uniqueList);
-		return ascendingWordList;
+		Scanner scan = null;
+		try 
+		{
+			scan = new Scanner(new File("example.txt")).useDelimiter("[^a-zA-Z0-9']+");;
+		} catch (FileNotFoundException e) 
+		{
+			System.out.println(e);
+			System.exit(1);
+		}
+		
+		int i = 0;
+		while (scan.hasNext())  //loop to place each word into array, then iterate to next index
+		{
+			array[i] = scan.next(); 
+			i++;
+		}
+		scan.close();
+		return array; //return the value
 	}
+	
+	
+	
+	//method to filter unique words from array
+	public static String[] filterDuplicates(int wordCount)
+	{
+		Scanner scan = null;
+		try 
+		{
+			scan = new Scanner(new File("example.txt")).useDelimiter("[^a-zA-Z0-9']+");;
+		} catch (FileNotFoundException e) 
+		{
+			System.out.println(e);
+			System.exit(1);
+		} 
 		
-	//this section for more methods	
 		
+		//instead of passing a 5000 element array, i figure it's easier to create a new one with size equal to total number of words
+		String[] filteredArray = new String[wordCount];
+		int i = 0;
+		while (scan.hasNext())  
+		{
+			filteredArray[i] = scan.next(); 
+			i++;
+		}
+		scan.close();
 		
+		//loop to iterate through array and check for duplicates.
+		for (int k = 0; k < (wordCount - 1); k++)    
+		{
+			for (int m = k + 1; m < wordCount; m++)
+			{
+				if (filteredArray[k] != null && filteredArray[k].equals(filteredArray[m]))
+				filteredArray[m] = null;
+			}
+		}			
+		return filteredArray;	//return the filtered array
+	}
+	
+	
+	
+	
+	//method for printing ascending unique words
+	public static String printUniques(String[] uniqueArray)
+	{
 		
+		Arrays.sort(uniqueArray, Comparator.nullsLast(Comparator.naturalOrder()));
 		
-		
-		
+		String uniqueString = new String();
+		uniqueString = " ";
+		for(int i = 0; i < uniqueArray.length; i++)
+		{
+			if (uniqueArray[i] != null) 
+			{
+				uniqueString = (uniqueString + uniqueArray[i] + ", ");
+			} else continue;
+		}
+		return uniqueString;
+	}
+	
+	
+	
+/*
+	//method for finding line
+	public static int lineCheck(String inputString, String searchString)
+	{
+		;
+		return test;
+	} 
+	
+*/	
+	//method for returning the contents of the index
+	//public static String lineArrayCheck(
 		
 }
-
-
-
-/* this is an example paragraph to process:
-
-When I first brought my cat home from the humane society she was a mangy, 
-pitiful animal. It cost a lot to adopt her: forty dollars. And then I had 
-to buy litter, a litterbox, food, and dishes for her to eat out of. Two 
-days after she came home with me she got taken to the pound by the animal
-warden. There's a leash law for cats in Fort Collins. If they're not in your 
-yard they have to be on a leash. Anyway, my cat is my best friend. I'm glad 
-I got her. She sleeps under the covers with me when it's cold. Sometimes she 
-meows a lot in the middle of the night and wakes me up, though. 
-*/
-
-/* this is the program output based on the above paragraph example
-
-E:\java Project example.txt
-
-The total number of words in the file is: 122
-The total number of different words in the file is: 85
-Words of the input file in ascending order without duplication
-And Anyway Collins Fort I I'm If It She Sometimes There's Two When a adopt after and animal be best 
-brought buy by came cat cats cold cost covers days dishes dollars eat first food for forty friend 
-from glad got had have her home humane in is it's law leash litter litterbox lot mangy me meows middle
-my night not of on out pitiful pound she sleeps society taken the then they they're though to under 
-up wakes warden was when with yard your
-
-E:\
-
-*/
-
-// to do:  add a prompt to allow user to input a word to search for.  EINPUT is command to terminate program
-// ex:  Please enter a search pattern:  the <enter>  (in this case, user searches for the word "the")
-// ex:  Line number:  1  (print which line number that word appears on)
-// ex:  When I first brought my cat home from the humane society she was a mangy,  (print the contents of the line)
-// ex:                                        ^   (print an arrow under the first letter of the word)
-// ex:  Line number: 4  (since it appears on more than one line)
-// ex:  days after she came home with me she got taken to the pound by the animal
-// ex:                          			  ^
